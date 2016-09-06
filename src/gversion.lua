@@ -143,9 +143,10 @@ end
 --
 -- @tparam string str The string to parse.
 -- @treturn Version A parsed version.
--- @raise Error when `str` is not a valid version.
+-- @error An error message if version is malformed.
+-- @raise Error when `str` is not a string.
 function M.parse (str)
-  assert(type(str) == 'string', 'str must be a string')
+  assert(type(str) == 'string', 'str must be a string', 2)
 
   local version = {}
   local pos = 1
@@ -172,7 +173,7 @@ function M.parse (str)
     if not eend then break end
 
     if not suffixes[suffix] then
-      error(("Invalid version %s, unknown suffix %s"):format(str, suffix))
+      return nil, ("Malformed version %s, unknown suffix %s"):format(str, suffix)
     end
     version[suffix] = tonumber(digits) and digits or '0'
     pos = eend + 1
@@ -188,7 +189,7 @@ function M.parse (str)
   end
 
   if #str ~= pos - 1 then
-    error('Invalid version: '..str)
+    return nil, 'Malformed version: '..str
   end
 
   return setmetatable(version, meta)

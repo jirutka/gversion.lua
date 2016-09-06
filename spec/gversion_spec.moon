@@ -35,11 +35,11 @@ describe '.parse', ->
         assert.same(expected, v.parse(input))
         assert.same(expected, v(input))
 
-  context 'invalid version', ->
+  context 'malformed version', ->
     for input in *invalid_versions
-      it "#{input} raises error", ->
-        assert.error -> v.parse(input)
-        assert.error -> v(input)
+      it "#{input} returns nil", ->
+        assert.is_nil(v.parse(input))
+        assert.is_nil(v(input))
 
 
 describe '.compare', ->
