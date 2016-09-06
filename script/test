@@ -1,0 +1,21 @@
+#!/bin/sh
+# vim: set ts=4:
+#
+# Runs unit tests and linter.
+#
+set -eu
+
+cd "$(dirname "$0")/.."
+
+. script/bootstrap
+
+info 'Running unit tests...'
+busted --shuffle --verbose --coverage
+
+# report coverage
+printf '\n'
+cat "$TEMP_DIR"/luacov.report.out | sed -nE '/^Summary/,$p' | tail -n+4
+printf '\n'
+
+info 'Running linter...'
+luacheck src/*

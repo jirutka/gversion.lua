@@ -1,0 +1,52 @@
+#!/bin/sh
+# vim: set ts=4:
+#
+# This script ensures that lua interpreter and lua modules specified
+# in Rocksfile are installed.
+#
+# Environment variables:
+#   LUA_VERSION : Version of the Lua interpreter (e.g. lua-5.1, luajit-2.0) to
+#                 be installed. Default is lua-5.3.
+#
+set -eu
+
+DEFAULT_LUA_VERSION='lua-5.3'
+HEREROCKS_URI='https://raw.githubusercontent.com/mpeterv/hererocks/0.10.0/hererocks.py'
+
+
+install_lua() {
+	local version="$(echo "$1" | tr - =)"
+
+	wget -O "$TEMP_DIR"/hererocks.py "$HEREROCKS_URI"
+	python "$TEMP_DIR"/hererocks.py "$VENV_DIR" --luarocks=^ --$version
+}
+
+install_rock() {
+	local name="$1"
+	luarocks --mversion show "$name" >/dev/null 2>&1 || luarocks install "$name"
+}
+
+
+cd "$(dirname "$0")/.."
+. script/common.sh
+
+mkdir -p "$VENV_DIR" "$TEMP_DIR"
+
+if ! is_on_path "$VENV_DIR"/bin; then
+	warn '! You should add ".venv/bin" to your PATH. Source .envrc" into your !'
+	warn '! shell, or install direnv or similar tool that will do it for you. !'
+	. .envrc
+fi
+
+if [ ! -x "$VENV_DIR"/bin/luarocks ]; then
+	version="${LUA_VERSION:-$DEFAULT_LUA_VERSION}"
+
+	info "Installing $version and luarocks into $VENV_DIR..."
+	install_lua "$version"
+	printf '\n'
+fi
+
+info 'Installing lua modules...'
+while read -r rockname; do
+	install_rock "$rockname" || die "Failed to install rock $rockname."
+done < Rocksfile

@@ -1,0 +1,15 @@
+= Lua library for Gentoo-style versioning format
+Jakub Jirutka <https://github.com/jirutka[@jirutka]>
+:gh-name: jirutka/gversion.lua
+:gh-branch: master
+
+ifdef::env-github[]
+image:https://travis-ci.org/{gh-name}.svg?branch={gh-branch}["Build Status", link="https://travis-ci.org/{gh-name}"]
+endif::env-github[]
+
+TBD
+
+== License
+
+This project is licensed under http://opensource.org/licenses/MIT/[MIT License].
+For the full text of the license, see the link:LICENSE[LICENSE] file.
