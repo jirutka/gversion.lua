@@ -33,6 +33,7 @@
 -- @license MIT
 --
 
+local format = string.format
 local join = table.concat
 
 local function cmp (a, b, field, conv, default)
@@ -151,8 +152,12 @@ function M.parse (str)
   local version = {}
   local pos = 1
 
-  -- Numbers
+  -- This leading dot allows to avoid special case of the first number
+  -- component in the version and also ensures that at least one number
+  -- component is matched (the following patterns don't match leading dot).
   str = '.'..str
+
+  -- Numbers
   while true do
     local _, eend, digits = str:find('^%.(%d+)', pos)
     if not eend then break end
@@ -173,7 +178,8 @@ function M.parse (str)
     if not eend then break end
 
     if not suffixes[suffix] then
-      return nil, ("Malformed version %s, unknown suffix %s"):format(str, suffix)
+      return nil, format("Malformed version %s, unknown suffix %s",
+                         str:sub(2), suffix)  -- remove leading dot
     end
     version[suffix] = tonumber(digits) and digits or '0'
     pos = eend + 1
@@ -189,7 +195,7 @@ function M.parse (str)
   end
 
   if #str ~= pos - 1 then
-    return nil, 'Malformed version: '..str
+    return nil, 'Malformed version: '..str:sub(2)  -- remove leading dot
   end
 
   return setmetatable(version, meta)
