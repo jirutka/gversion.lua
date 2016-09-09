@@ -143,6 +143,43 @@ function meta:__tostring ()
 end
 
 
+--- Compares two versions.
+--
+-- @tparam Version a
+-- @tparam Version b
+-- @treturn number -1 if `a < b`, 0 if `a == b`, or 1 if `a > b`
+function M.compare (a, b)
+  local res
+
+  -- Numerical part
+  for i=1, math.max(#a, #b) do
+    res = cmp(a, b, i, tonumber, 0)
+    if res ~= 0 then return res end
+  end
+
+  -- A Letter after the final number
+  res = cmp(a, b, 'suffix', identity, '')
+  if res ~= 0 then return res end
+
+  -- Pre-release suffixes
+  for _, suffix in ipairs(suffixes_pre) do
+    res = cmp(a, b, suffix, tonumber, math.huge)
+    if res ~= 0 then return res end
+  end
+
+  -- Post-release suffixes
+  for _, suffix in ipairs(suffixes_post) do
+    res = cmp(a, b, suffix, tonumber, -1)
+    if res ~= 0 then return res end
+  end
+
+  -- Revision
+  res = cmp(a, b, 'r', tonumber, 0)
+  if res ~= 0 then return res end
+
+  return 0
+end
+
 --- Tries to convert the given `version` into a Gentoo-style versioning format.
 --
 -- The conversion consists of:
@@ -237,43 +274,6 @@ function M.parse (str)
   end
 
   return setmetatable(version, meta)
-end
-
---- Compares two versions.
---
--- @tparam Version a
--- @tparam Version b
--- @treturn number -1 if `a < b`, 0 if `a == b`, or 1 if `a > b`
-function M.compare (a, b)
-  local res
-
-  -- Numerical part
-  for i=1, math.max(#a, #b) do
-    res = cmp(a, b, i, tonumber, 0)
-    if res ~= 0 then return res end
-  end
-
-  -- A Letter after the final number
-  res = cmp(a, b, 'suffix', identity, '')
-  if res ~= 0 then return res end
-
-  -- Pre-release suffixes
-  for _, suffix in ipairs(suffixes_pre) do
-    res = cmp(a, b, suffix, tonumber, math.huge)
-    if res ~= 0 then return res end
-  end
-
-  -- Post-release suffixes
-  for _, suffix in ipairs(suffixes_post) do
-    res = cmp(a, b, suffix, tonumber, -1)
-    if res ~= 0 then return res end
-  end
-
-  -- Revision
-  res = cmp(a, b, 'r', tonumber, 0)
-  if res ~= 0 then return res end
-
-  return 0
 end
 
 
