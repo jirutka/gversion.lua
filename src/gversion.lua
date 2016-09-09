@@ -8,7 +8,7 @@
 --     ver = v"2.1_rc3-r1"
 --     ver = v.parse("2.1_rc3-r1")
 --
---     -- Access version parts
+--     -- Access version components
 --     ver[1]    --> "2"
 --     ver.major --> "2"
 --     ver[2]    --> "1"
@@ -16,7 +16,7 @@
 --     ver.rc    --> "3"
 --     ver.r     --> "1"
 --
---     -- Change version parts
+--     -- Change version components
 --     ver[1] = "2"    -- 2.1_rc3-r1
 --     ver.minor = "0" -- 2.0_rc3-r1
 --     ver.rc = nil    -- 2.0-r1
@@ -25,6 +25,9 @@
 --     v"1.5" == v"1.005"          --> true
 --     v"1.2_rc1" < v"1.2b"        --> true
 --     v"1.2_beta_pre" > v"1.2_p1" --> false
+--
+--     -- Normalize version; try to convert it into our versioning format
+--     v.normalize("2_1-beta3")  --> "2.1_beta3"
 --
 -- See https://devmanual.gentoo.org/ebuild-writing/file-format/#file-naming-rules
 -- for specification of the versioning format.
@@ -139,6 +142,41 @@ function meta:__tostring ()
   return res
 end
 
+
+--- Tries to convert the given `version` into a Gentoo-style versioning format.
+--
+-- The conversion consists of:
+--
+-- * converting all letters to lowercase (1)
+-- * removing all whitespaces (2)
+-- * removing prefix "v" and "r" (3)
+-- * replacing "_" and "-" between each two numbers with "." (4)
+-- * inserting "_" between a digit and a known suffix (5)
+-- * replacing "." and "-" between a digit and a known suffix (5)
+-- * inserting "_p" between a numeric part of the version followed by a single
+--   letter and a number (e.g. 1.2.3a1 -> 1.2.3a_p1) (6)
+--
+-- Note: There's no guarantee that the result will really be a valid version
+-- number! Always pass it to `parse` for validation.
+--
+-- @tparam string version
+-- @treturn string
+-- @raise Error when `version` is not a string.
+function M.normalize (version)
+  assert(type(version) == 'string', 'version must be a string', 2)
+
+  return version
+    :lower()  -- 1
+    :gsub('%s', '')  -- 2
+    :gsub('^[rv]', '', 1)  -- 3
+    :gsub('(%d+)[_%-]%f[%d]', '%1.')  -- 4
+    :gsub('(%d)[%.%-]?(%l+)(%d*)', function(leading, letters, digits)  -- 5
+      if suffixes[letters] then
+        return leading..'_'..letters..digits
+      end
+    end)
+    :gsub('^([%d%.]+)(%l)(%d+)', '%1%2_p%3', 1)  -- 6
+end
 
 --- Parses given `str` and returns `Version`, if `str` is a valid version.
 --

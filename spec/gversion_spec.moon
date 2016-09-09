@@ -27,6 +27,38 @@ invalid_versions = {
 }
 
 
+describe '.normalize', ->
+
+  for { input        , expected       } in *{
+      { 'v1.2.3'     , '1.2.3'        }
+      { 'r155'       , '155'          }
+      { '7_20_0'     , '7.20.0'       }
+      { '2-8-0'      , '2.8.0'        }
+      { '1.2-3'      , '1.2.3'        }
+      { '4.0.0alpha3', '4.0.0_alpha3' }
+      { '7.25BETA2'  , '7.25_beta2'   }
+      { '7.2-beta'   , '7.2_beta'     }
+      { '0.12pre6'   , '0.12_pre6'    }
+      { '1.2rc3'     , '1.2_rc3'      }
+      { '1.2rc'      , '1.2_rc'       }
+      { '5.9.2p1'    , '5.9.2_p1'     }
+      { '0.10.0a1'   , '0.10.0a_p1'   }
+      { '4.3.5b1'    , '4.3.5b_p1'    }
+
+      { '1.2build6'   , '1.2build6'   }
+  } do
+    it "converts #{input} into #{expected}", ->
+      assert.same(expected, v.normalize(input))
+
+  for input, _ in pairs valid_versions
+    it "does not affect valid version #{input}", ->
+      assert.same(input, v.normalize(input))
+
+  for input in *{ nil, 1, true, {1}, -> 1 }
+    it "raises error when given argument of type #{type(input)}", ->
+      assert.has_error -> v.normalize(input)
+
+
 describe '.parse', ->
 
   context 'valid version', ->
