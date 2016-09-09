@@ -61,17 +61,19 @@ describe '.normalize', ->
 
 describe '.parse', ->
 
-  context 'valid version', ->
-    for input, expected in pairs valid_versions
-      it "#{input} returns Version", ->
-        assert.same(expected, v.parse(input))
-        assert.same(expected, v(input))
+  for input, expected in pairs valid_versions
+    it "returns Version table when given valid version: #{input}", ->
+      assert.same(expected, v.parse(input))
+      assert.same(expected, v(input))
 
-  context 'malformed version', ->
-    for input in *invalid_versions
-      it "#{input} returns nil", ->
-        assert.is_nil(v.parse(input))
-        assert.is_nil(v(input))
+  for input in *invalid_versions
+    it "returns nil when given malformed version: #{input}", ->
+      assert.is_nil(v.parse(input))
+      assert.is_nil(v(input))
+
+  for input in *{ nil, 1, true, {1}, -> 1 }
+    it "raises error when given argument of type #{type(input)}", ->
+      assert.has_error -> v.normalize(input)
 
 
 describe '.compare', ->
