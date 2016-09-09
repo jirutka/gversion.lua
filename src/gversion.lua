@@ -2,34 +2,34 @@
 -- Lua library for Gentoo-style versioning format
 --
 -- **Examples:**
---     local v = require 'gversion'
+--     local ver = require "gversion"
 --
 --     -- Parse version
---     ver = v"2.1_rc3-r1"
---     ver = v.parse("2.1_rc3-r1")
+--     local pkgver = ver.parse("2.1_rc3-r1")
+--     local pkgver = ver"2.1_rc3-r1"
 --
 --     -- Access version components
---     ver[1]    --> "2"
---     ver.major --> "2"
---     ver[2]    --> "1"
---     ver.minor --> "1"
---     ver.rc    --> "3"
---     ver.r     --> "1"
+--     pkgver[1]     --> "2"
+--     pkgver.major  --> "2"
+--     pkgver[2]     --> "1"
+--     pkgver.minor  --> "1"
+--     pkgver.rc     --> "3"
+--     pkgver.r      --> "1"
 --
 --     -- Change version components
---     ver[1] = "2"    -- 2.1_rc3-r1
---     ver.minor = "0" -- 2.0_rc3-r1
---     ver.rc = nil    -- 2.0-r1
+--     pkgver[1] = "2"     -- 2.1_rc3-r1
+--     pkgver.minor = "0"  -- 2.0_rc3-r1
+--     pkgver.rc = nil     -- 2.0-r1
 --
 --     -- Compare versions
---     v"1.5" == v"1.005"          --> true
---     v"1.2_rc1" < v"1.2b"        --> true
---     v"1.2_beta_pre" > v"1.2_p1" --> false
+--     ver"1.5" == ver"1.005"           --> true
+--     ver"1.2_rc1" < ver"1.2b"         --> true
+--     ver"1.2_beta_pre" > ver"1.2_p1"  --> false
 --
 --     -- Normalize version; try to convert it into our versioning format
---     v.normalize("2_1-beta3")  --> "2.1_beta3"
+--     ver.normalize("2_1-beta3")  --> "2.1_beta3"
 --
--- See https://devmanual.gentoo.org/ebuild-writing/file-format/#file-naming-rules
+-- See <https://devmanual.gentoo.org/ebuild-writing/file-format/#file-naming-rules>
 -- for specification of the versioning format.
 --
 -- @author Jakub Jirutka <jakub@jirutka.cz>
