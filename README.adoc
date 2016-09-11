@@ -2,9 +2,11 @@
 Jakub Jirutka <https://github.com/jirutka[@jirutka]>
 :gh-name: jirutka/gversion.lua
 :gh-branch: master
+:ldoc-url: https://jirutka.github.io/gversion.lua/ldoc/
 
 ifdef::env-github[]
 image:https://travis-ci.org/{gh-name}.svg?branch={gh-branch}["Build Status", link="https://travis-ci.org/{gh-name}"]
+image:https://img.shields.io/badge/ldoc-docs-blue.svg["LDoc", link="{ldoc-url}"]
 endif::env-github[]
 
 TBD

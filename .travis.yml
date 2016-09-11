@@ -1,5 +1,7 @@
 sudo: false
 env:
+  global:
+    secure: NvlfeJ4jANCKMPcSzRQGAEge19RsyS01TobIM37pWcYBqhOMMwLihW4g+vYX2hmrPEyKYFpWAvSxxxEO3vXIV83MtT0Cq/dYWEsDI8o0zKZSS56/8KfPYIUnCuVu0bvZb0YrCOPZR80kEGS0RRE8uXoptLr9ctKfyfkCFt3z9SBPkebperV+2hAVESaGw/g6v9/jpAb6bKR4RYsX47MechvZmfsbk/FXrbmwjAxBzTEK30YVExrRXbX8dbR0t1CzTSttWoF2+gxyNxk7UZ2sWW4u9Yluzgax/6g+eHiRZYj+693fdRCKItSb83TdDafWWHeWYlrlDebeQMUaisW0/f4la7Da7Zqfb3ofl2oJeToXun6odZxGOjshfKxzbPKSwi1nAnNNa9KlylxmauAHZsqLXRWahgox7h20zVgmM+43+7JIQY54rjetNyo/a0hliSAkxPWMKE0LTKWNctJ3/JvwGS/iKToPDABPdRzlOYCogohYaH0Wpw6wBuiDiz9Ba2+sBvPd/w6f4HX4MSLTKqoG0XuIzOHWxyK0vTJEm3BufRDoc+ZEhrmlkyy7/8KV6x+GpvHTqI5pF+SHZZJlpEvQ3HuFxorGBc6cKxqU593C3N9aUV9wwQNCK1mQ7g9XyxqcagoXY3FQxVxVVSG9KjZIYnkpsLtu9VrQdL6aYco=  # GH_TOKEN
   matrix:
     - LUA_VERSION=luajit-2.0
     - LUA_VERSION=luajit-2.1
@@ -14,3 +16,5 @@ install:
   - script/bootstrap
 script:
   - script/test
+after_success:
+  - script/deploy-docs

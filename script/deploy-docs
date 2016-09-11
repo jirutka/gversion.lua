@@ -1,0 +1,114 @@
+#!/bin/sh
+# vim: set ts=4:
+#
+# Generates docs using ldoc and deploys them to gh-pages branch in repository.
+#
+set -e
+
+DEPLOY_BRANCH='gh-pages'
+SOURCE_BRANCH='master'
+
+
+build() {
+	local build_dir="$1"
+
+	# This is needed for cleaning stale files; all docs will be regenerated.
+	rm -Rf -- "$build_dir"/ldoc/*
+
+	info 'Running ldoc...'
+	ldoc --dir "$build_dir"/ldoc --verbose .
+
+	# Remove Last updated timestamp.
+	LANG=C find "$build_dir"/ldoc -name '*.html' \
+		-exec sed -i.BAK 's/<i style="float:right;">Last updated.*//' {} \; \
+		-exec rm {}.BAK \;  # sed -i behaves differently on BSD and GNU...
+}
+
+init_deploy_branch() {
+	local build_dir="$1"
+
+	cd "$build_dir"
+	git checkout --orphan "$DEPLOY_BRANCH"
+	find . -path ./.git -prune -o -exec rm -rf {} \; 2>/dev/null || :
+	cd - >/dev/null
+}
+
+has_changes() {
+	test -n "$(git status --porcelain)"
+}
+
+remote_origin_url() {
+	if [ -n "${GH_TOKEN:-}" ]; then
+		git config remote.origin.url \
+			| sed 's|^git:|https:|' \
+			| sed "s|^https://|https://${GH_TOKEN}@|"
+	else
+		git config remote.origin.url
+	fi
+}
+
+shield() {
+	if [ -n "${GH_TOKEN:-}" ]; then
+		eval $@ 2>&1 | sed "s/$GH_TOKEN/*****/g"
+	else
+		eval $@
+	fi
+}
+
+skip_push() {
+	[ -n "${TRAVIS:-}" ] || return 1
+
+	[ "$TRAVIS_PULL_REQUEST" != 'false' ] \
+		|| [ "$TRAVIS_BRANCH" != "$SOURCE_BRANCH" ] \
+		|| [ "$TRAVIS_BUILD_NUMBER.1" != "$TRAVIS_JOB_NUMBER" ]
+}
+
+
+#========================  Main  =========================#
+
+cd "$(dirname "$0")/.."
+. script/bootstrap
+
+info 'Updating ldoc documentation...'
+
+commit_rev="$(git rev-parse --short HEAD)"
+commit_author="$(git log -n 1 --format='%aN <%aE>')"
+commit_date="$(git log -n 1 --format='%aD')"
+remote_url="$(remote_origin_url)" || die 'Failed to get remote.origin.url'
+build_dir="$(mktemp -q -d "${TMPDIR:-"/tmp"}/docs.XXXX")"
+
+if [ -n "${TRAVIS:-}" ] && [ -z "${GIT_COMMITTER_NAME:-}" ]; then
+	GIT_COMMITTER_NAME='Travis CI'
+fi
+export GIT_COMMITTER_NAME
+
+shield git clone --progress "$remote_url" "$build_dir"
+
+git -C "$build_dir" checkout "$DEPLOY_BRANCH" || {
+	info "Branch $DEPLOY_BRANCH doesn't exist yet, initializing..."
+	init_deploy_branch "$build_dir"
+}
+
+build "$build_dir"
+
+cd "$build_dir"
+
+if ! has_changes; then
+	warn 'No changes'; exit 0
+fi
+
+if skip_push; then
+	warn 'Skipping push'; exit 0
+fi
+
+info 'Commiting changes...'
+git add --all
+git commit \
+	--message="Built from $commit_rev" \
+	--author="$commit_author" \
+	--date="$commit_date"
+
+info 'Pushing changes to the repository...'
+shield git push --progress "$remote_url" "$DEPLOY_BRANCH:$DEPLOY_BRANCH"
+
+rm -Rf -- "$build_dir"
