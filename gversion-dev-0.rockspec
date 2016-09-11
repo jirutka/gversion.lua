@@ -11,10 +11,9 @@ source = {
 description = {
   summary = 'Lua library for Gentoo-style versioning format',
   detailed = [[
-    Gentoo versioning format (scheme) is like Semantic Versioning, but more
-    flexible and complex. See details in
-    https://devmanual.gentoo.org/ebuild-writing/file-format/#file-naming-rules.
-  ]],
+Gentoo versioning format (scheme) is like Semantic Versioning, but more
+flexible and complex. This library allows to parse, normalize, validate
+and compare version numbers.]],
   homepage = 'https://github.com/jirutka/gversion.lua',
   maintainer = 'Jakub Jirutka <jakub@jirutka.cz>',
   license = 'MIT',
