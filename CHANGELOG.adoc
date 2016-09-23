@@ -1,6 +1,6 @@
 = Changelog
 
-== 0.2.0 (unreleased)
+== 0.2.0 (2016-09-23)
 
 * Change `normalize()` to _not_ convert single letter suffixes followed by a number to `<letter>_p<num>` (e.g. 1.2c3 ↛ 1.2c_p3).
 * Change `normalize()` to convert suffix `a` and `b` followed by a number to `_alpha<num>` and `_beta<num>`, respectively (e.g. 1.2b3 → 1.2_beta3).

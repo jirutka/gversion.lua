@@ -61,7 +61,7 @@ end
 local M = {}
 
 --- Version of this module.
-M._VERSION = '0.1.0'
+M._VERSION = '0.2.0'
 
 -- List of pre/post-release suffixes (initialized in `set_suffixes`).
 local suffixes_pre = {}
