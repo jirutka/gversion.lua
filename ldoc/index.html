@@ -73,7 +73,8 @@
 </span>ver<span class="string">"1.2_beta_pre"</span> &gt; ver<span class="string">"1.2_p1"</span>  <span class="comment">--&gt; false
 </span>
 <span class="comment">-- Normalize version; try to convert it into our versioning format
-</span>ver.normalize(<span class="string">"2_1-beta3"</span>)  <span class="comment">--&gt; "2.1_beta3"</span>
+</span>ver.normalize(<span class="string">"2_1-beta3"</span>)  <span class="comment">--&gt; "2.1_beta3"
+</span>ver.normalize(<span class="string">"2.1b3"</span>)      <span class="comment">--&gt; "2.1_beta3"</span>
 </pre>
 
 <p> See <a href="https://devmanual.gentoo.org/ebuild-writing/file-format/#file-naming-rules">https://devmanual.gentoo.org/ebuild-writing/file-format/#file-naming-rules</a>
@@ -206,10 +207,10 @@
     <li>removing all whitespaces (2)</li>
     <li>removing prefix "v" and "r" (3)</li>
     <li>replacing "_" and "-" between each two numbers with "." (4)</li>
-    <li>inserting "_" between a digit and a known suffix (5)</li>
-    <li>replacing "." and "-" between a digit and a known suffix (5)</li>
-    <li>inserting "_p" between a numeric part of the version followed by a single
-    letter and a number (e.g. 1.2.3a1 -> 1.2.3a_p1) (6)</li>
+    <li>inserting "_" between a digit and a known suffix (5.1)</li>
+    <li>replacing "." and "-" between a digit and a known suffix with "_" (5.1)</li>
+    <li>replacing "a", ".a", and "-a" between two numbers with "_alpha" (5.2)</li>
+    <li>replacing "b", ".b", and "-b" between two numbers with "_beta" (5.2)</li>
 </ul>
 
 <p> Note: There's no guarantee that the result will really be a valid version
