@@ -47,6 +47,7 @@ ver"1.2_beta_pre" > ver"1.2_p1"  --> false
 
 -- Normalize version; try to convert it into our versioning format
 ver.normalize("2_1-beta3")  --> "2.1_beta3"
+ver.normalize("2.1b3")      --> "2.1_beta3"
 ----
 
 

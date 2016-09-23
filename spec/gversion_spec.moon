@@ -3,6 +3,7 @@ v = require 'gversion'
 valid_versions =
   '0.12':            { '0', '12' }
   '0.12a':           { '0', '12', suffix: 'a' }
+  '0.12b':           { '0', '12', suffix: 'b' }
   '1.005':           { '1', '005' }
   '2.5-r0':          { '2', '5', r: '0' }
   '0-r1':            { '0', r: '1' }
@@ -42,10 +43,12 @@ describe '.normalize', ->
       { '1.2rc3'     , '1.2_rc3'      }
       { '1.2rc'      , '1.2_rc'       }
       { '5.9.2p1'    , '5.9.2_p1'     }
-      { '0.10.0a1'   , '0.10.0a_p1'   }
-      { '4.3.5b1'    , '4.3.5b_p1'    }
+      { '1.5.a1'     , '1.5_alpha1'   }
+      { '4.3.5b1'    , '4.3.5_beta1'  }
+      { '4b3'        , '4_beta3'      }
 
-      { '1.2build6'   , '1.2build6'   }
+      { '1.2build6'  , '1.2build6'    }
+      { '1.2f1'      , '1.2f1'        }
   } do
     it "converts #{input} into #{expected}", ->
       assert.same(expected, v.normalize(input))

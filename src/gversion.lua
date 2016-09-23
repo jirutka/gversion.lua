@@ -28,6 +28,7 @@
 --
 --     -- Normalize version; try to convert it into our versioning format
 --     ver.normalize("2_1-beta3")  --> "2.1_beta3"
+--     ver.normalize("2.1b3")      --> "2.1_beta3"
 --
 -- See <https://devmanual.gentoo.org/ebuild-writing/file-format/#file-naming-rules>
 -- for specification of the versioning format.
@@ -188,10 +189,10 @@ end
 -- * removing all whitespaces (2)
 -- * removing prefix "v" and "r" (3)
 -- * replacing "_" and "-" between each two numbers with "." (4)
--- * inserting "_" between a digit and a known suffix (5)
--- * replacing "." and "-" between a digit and a known suffix (5)
--- * inserting "_p" between a numeric part of the version followed by a single
---   letter and a number (e.g. 1.2.3a1 -> 1.2.3a_p1) (6)
+-- * inserting "_" between a digit and a known suffix (5.1)
+-- * replacing "." and "-" between a digit and a known suffix with "_" (5.1)
+-- * replacing "a", ".a", and "-a" between two numbers with "_alpha" (5.2)
+-- * replacing "b", ".b", and "-b" between two numbers with "_beta" (5.2)
 --
 -- Note: There's no guarantee that the result will really be a valid version
 -- number! Always pass it to `parse` for validation.
@@ -202,17 +203,20 @@ end
 function M.normalize (version)
   assert(type(version) == 'string', 'version must be a string', 2)
 
+  local suffix_aliases = { a = 'alpha', b = 'beta' }
+
   return version
     :lower()  -- 1
     :gsub('%s', '')  -- 2
     :gsub('^[rv]', '', 1)  -- 3
     :gsub('(%d+)[_%-]%f[%d]', '%1.')  -- 4
-    :gsub('(%d)[%.%-]?(%l+)(%d*)', function(leading, letters, digits)  -- 5
+    :gsub('(%d)[_%.%-]?(%l+)(%d*)', function(leading, letters, digits)  -- 5
       if suffixes[letters] then
-        return leading..'_'..letters..digits
+        return leading..'_'..letters..digits  -- 5.1
+      elseif digits ~= '' and suffix_aliases[letters] then
+        return leading..'_'..suffix_aliases[letters]..digits  -- 5.2
       end
     end)
-    :gsub('^([%d%.]+)(%l)(%d+)', '%1%2_p%3', 1)  -- 6
 end
 
 --- Parses given `str` and returns `Version`, if `str` is a valid version.
