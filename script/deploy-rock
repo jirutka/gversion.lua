@@ -1,0 +1,38 @@
+#!/bin/sh
+# vim: set ts=4:
+#
+# Generates a release rockspec for the git tag at HEAD and uploads
+# it to the LuaRocks.
+#
+set -eu
+
+readonly PACKAGE='gversion'
+readonly BASE_ROCKSPEC="$PACKAGE-dev-0.rockspec"
+
+
+cd "$(dirname "$0")/.."
+. script/common.sh
+
+git_tag="$(git tag --points-at $(git rev-parse HEAD))"
+[ -n "$git_tag" ] || die 'No tag found at the HEAD'
+
+version="${git_tag#v*}-1"
+rockspec="$PACKAGE-$version.rockspec"
+
+sed -E \
+	-e "s/^version *= *['\"].*['\"]/version = '$version'/" \
+	-e "/^source *= *{/,/^}/ s/(branch|tag) *= *['\"].*['\"]/tag = '$git_tag'/" \
+	$PACKAGE-dev-0.rockspec > $rockspec
+
+cat $rockspec
+
+printf '\nDo you want to upload the above rockspec to LuaRocks? [yes] '
+read answer
+case "$answer" in
+	y* | '') ;;
+	*) exit 1 ;;
+esac
+
+luarocks upload $@ $rockspec
+
+rm $rockspec
